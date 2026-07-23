@@ -371,6 +371,7 @@ describe("WebhookHandler", () => {
         .mockReturnValue({
           open: true,
           title: "test",
+          roomId: "123",
           convert2Mp4Option: true,
           minSize: 1,
           partMergeMinute: 10,
@@ -397,6 +398,7 @@ describe("WebhookHandler", () => {
         },
         {
           removeVideo: true,
+          extra: { roomId: "123" },
         },
       );
       expect(webhookHandler.liveManager.liveData[0].parts[0].filePath).toBe("/path/to/part1.mp4");
