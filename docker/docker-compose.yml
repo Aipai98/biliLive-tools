@@ -5,9 +5,9 @@ services:
     ports:
       # 前者按需改动
       - "3000:3000"
-  # 接口镜像
+  # 接口镜像（带优先级串行压制功能，已由 GitHub Actions 构建到 ghcr.io）
   api:
-    image: renmu1234/bililive-tools-backend
+    image: ghcr.io/aipai98/bililive-tools-backend:latest
     ports:
       - "18010:18010"
     volumes:
