@@ -108,6 +108,7 @@ async function download(
             override: true,
             removeOrigin: true,
             autoRun: true,
+            extra: options.danmuMeta?.room_id ? { roomId: String(options.danmuMeta.room_id) } : undefined,
           },
         );
       },

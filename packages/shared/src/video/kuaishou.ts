@@ -49,6 +49,7 @@ async function download(
             override: true,
             removeOrigin: true,
             autoRun: true,
+            extra: { roomId: "kuaishou-replay" },
           },
         );
       },

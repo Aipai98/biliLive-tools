@@ -1,6 +1,7 @@
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isBetweenTimeRange } from "../../utils/index.js";
 import { TaskType } from "../../enum.js";
+import log from "../../utils/log.js";
 
 import type { Status } from "@biliLive-tools/types";
 import type { AppConfig } from "../../config.js";
@@ -104,8 +105,15 @@ export class TaskQueue {
     });
 
     for (const rid of sorted) {
-      if (roomsWithTasks.has(rid)) return rid;
+      if (roomsWithTasks.has(rid)) {
+        log.info(
+          `[优先级串行] getAllowedRoom结果: ${rid} (优先级=${controller.roomPriority(rid)}, ` +
+          `活跃房间=${[...activeRooms].map(r => `${r}(${controller.roomPriority(r)})`).join(",")})`,
+        );
+        return rid;
+      }
     }
+    log.info(`[优先级串行] getAllowedRoom: null (无待处理任务的房间, activeRooms=${[...activeRooms].join(",")})`);
     return null;
   }
 
@@ -140,6 +148,10 @@ export class TaskQueue {
 
     // 优先级串行：ffmpeg 任务需是当前允许执行的房间，否则保持 pending
     if (task.type === TaskType.ffmpeg && this.isRoomBlocked(task.extra?.roomId)) {
+      log.info(
+        `[优先级串行] 任务被拦截: name=${task.name}, roomId=${task.extra?.roomId ?? "无"}, ` +
+        `allowedRoom=${this.getAllowedRoom()}`,
+      );
       return;
     }
 
@@ -341,6 +353,10 @@ export class TaskQueue {
       const allowed = this.getAllowedRoom();
       const allowedSet = allowed != null ? new Set([String(allowed)]) : null;
       const runningCount = this.filter({ type: type, status: "running" }).length;
+      log.info(
+        `[优先级串行] taskLimit检查: allowedRoom=${allowed}, runningCount=${runningCount}, ` +
+        `pendingTasks=${pendingFFmpegTask.length}`,
+      );
       if (runningCount < 1) {
         const allowedPending = pendingFFmpegTask.filter((task) => {
           // 没有 roomId 的任务（如 flvRepair）不受限制，始终允许
@@ -349,7 +365,12 @@ export class TaskQueue {
           return allowedSet.has(String(task.extra.roomId));
         });
         if (allowedPending.length > 0) {
+          log.info(
+            `[优先级串行] 放行任务: name=${allowedPending[0].name}, roomId=${allowedPending[0].extra?.roomId ?? "无"}`,
+          );
           allowedPending[0].exec();
+        } else {
+          log.info(`[优先级串行] 无可放行任务（${pendingFFmpegTask.length} 个 pending 均被拦截）`);
         }
       }
       return;
