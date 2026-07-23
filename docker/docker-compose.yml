@@ -1,7 +1,7 @@
 services:
-  # UI镜像
+  # UI镜像（含优先级串行压制开关与房间优先级输入框）
   webui:
-    image: renmu1234/bililive-tools-frontend
+    image: ghcr.io/aipai98/bililive-tools-frontend:latest
     ports:
       # 前者按需改动
       - "3000:3000"

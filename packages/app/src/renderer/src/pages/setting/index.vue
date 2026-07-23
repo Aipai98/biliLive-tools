@@ -768,6 +768,7 @@ const tempRoomDetail = ref<AppRoomConfig & { id?: string }>({
   videoHandleTime: ["00:00:00", "23:59:59"],
   partTitleTemplate: "",
   afterUploadDeletAction: "none",
+  processPriority: 999,
 });
 const saveRoomDetail = (data: AppRoomConfig & { id?: string }) => {
   config.value.webhook.rooms[data.id!] = data;
@@ -789,6 +790,7 @@ const addRoom = () => {
     id: undefined,
     open: true,
     remark: "",
+    processPriority: 999,
     ...toRaw(webhookDefaultValue.value),
   };
   console.log("tempRoomDetail", tempRoomDetail.value);

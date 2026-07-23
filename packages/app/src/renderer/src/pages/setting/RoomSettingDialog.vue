@@ -23,6 +23,15 @@
           </template>
           <n-input v-model:value="data.remark" placeholder="请输入备注" clearable />
         </n-form-item>
+        <n-form-item>
+          <template #label>
+            <span class="inline-flex">
+              处理优先级
+              <Tip tip="数字越小越先压制；留空或 999 为最低优先级（最后处理）"></Tip>
+            </span>
+          </template>
+          <n-input-number v-model:value="data.processPriority" :min="0" :max="999" />
+        </n-form-item>
         <CommonSetting
           v-model:data="data"
           v-model:global-fields-obj="globalFieldsObj"

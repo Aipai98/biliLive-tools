@@ -11,6 +11,15 @@
       </n-form-item>
       <n-form-item>
         <template #label>
+          <span class="inline-flex">
+            优先级串行压制
+            <Tip tip="开启后所有 ffmpeg 压制任务按房间优先级严格串行（数字越小越先压制），并发强制为 1，避免多房间同时压制抢占资源"></Tip>
+          </span>
+        </template>
+        <n-switch v-model:value="config.task.prioritySerial" />
+      </n-form-item>
+      <n-form-item>
+        <template #label>
           <span class="inline-flex"> 斗鱼下载</span>
         </template>
         <n-input-number v-model:value="config.task.douyuDownloadMaxNum" min="-1" max="65535">
