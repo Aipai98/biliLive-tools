@@ -79,6 +79,8 @@ export interface RoomConfig {
   /** 弹幕转换后是否要删除XML弹幕 */
   afterConvertRemoveXmlRaw: boolean;
   afterConvertRemoveVideoRaw: boolean;
+  /** 处理优先级（数字越小越优先），用于优先级串行压制 */
+  processPriority: number;
   roomId: string;
 }
 
@@ -169,6 +171,7 @@ export class ConfigManager {
     const removeSourceAferrConvert2Mp4 = afterConvertAction.includes("removeAfterConvert2Mp4");
     const afterConvertRemoveVideoRaw = afterConvertAction.includes("removeVideo");
     const afterConvertRemoveXmlRaw = afterConvertAction.includes("removeXml");
+    const processPriority = this.getRoomSetting("processPriority", roomSetting) ?? 999;
     const afterConvertRemoveFlvRaw = afterConvertAction.includes("removeAfterFlvRepair");
     const removeSmallFile = afterConvertAction.includes("removeSmallFile");
 
@@ -241,6 +244,7 @@ export class ConfigManager {
       removeSmallFile,
       afterConvertRemoveXmlRaw,
       afterConvertRemoveVideoRaw,
+      processPriority,
       roomId,
     };
   }

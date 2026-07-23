@@ -1002,6 +1002,8 @@ export const mergeAssMp4 = async (
     limitTime?: [] | [string, string];
     autoRun?: boolean;
     removeSubtitle?: boolean;
+    /** 附加元数据（如 { roomId }），用于优先级串行等场景 */
+    extra?: Record<string, any>;
   } = {
     removeOrigin: false,
     startTimestamp: 0,
@@ -1087,6 +1089,7 @@ export const mergeAssMp4 = async (
       },
     },
   );
+  if (options.extra) task.extra = options.extra;
   log.debug("mergeAssMp4 start task", task.taskId);
   taskQueue.addTask(task, options.autoRun ?? false);
 
@@ -1165,6 +1168,8 @@ export const transcode = async (
     limitTime?: [string, string];
     /** 自动运行 */
     autoRun?: boolean;
+    /** 附加元数据（如 { roomId }），透传给底层任务 */
+    extra?: Record<string, any>;
   },
 ) => {
   const options = Object.assign(
@@ -1190,6 +1195,7 @@ export const transcode = async (
       override: options.override,
       limitTime: options.limitTime,
       autoRun: options.autoRun ?? false,
+      extra: options.extra,
     },
     ffmpegOptions,
   );
@@ -1368,6 +1374,8 @@ export const burn = async (
     /** 1: 保存到原始文件夹，2：保存到特定文件夹 */
     saveType?: 1 | 2;
     limitTime?: [string, string];
+    /** 附加元数据（如 { roomId }），透传给底层任务 */
+    extra?: Record<string, any>;
   },
 ) => {
   if (options.ffmpegOptions.encoder === "copy") {
@@ -1460,6 +1468,7 @@ export const burn = async (
       startTimestamp,
       timestampFont,
       limitTime: options.limitTime,
+      extra: options.extra,
     },
     options.ffmpegOptions,
   );

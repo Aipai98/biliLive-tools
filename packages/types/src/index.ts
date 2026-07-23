@@ -155,6 +155,8 @@ export type CommonRoomConfig = {
   uploadToSameMedia?: boolean;
   // 上传非视频版预设
   noDanmuVideoPreset?: string;
+  /** 处理优先级（数字越小越优先），用于优先级串行压制；不配置时默认 999 */
+  processPriority?: number;
 };
 
 // webhook房间配置
@@ -792,6 +794,8 @@ export interface AppConfig {
     biliUploadMaxNum: number;
     biliDownloadMaxNum: number;
     syncMaxNum: number;
+    /** 优先级串行：开启后 ffmpeg 压制按房间 processPriority 顺序串行执行 */
+    prioritySerial?: boolean;
   };
   /** 上传配置 */
   biliUpload: {

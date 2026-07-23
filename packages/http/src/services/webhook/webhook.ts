@@ -2,6 +2,7 @@ import path from "node:path";
 import fs from "fs-extra";
 
 import { FFmpegPreset, VideoPreset, DanmuPreset } from "@biliLive-tools/shared";
+import { taskQueue } from "@biliLive-tools/shared/task/task.js";
 import { DEFAULT_BILIUP_CONFIG } from "@biliLive-tools/shared/presets/videoPreset.js";
 import { biliApi } from "@biliLive-tools/shared/task/bili.js";
 import { isEmptyDanmu, convertXml2Ass } from "@biliLive-tools/shared/task/danmu.js";
@@ -113,6 +114,17 @@ export class WebhookHandler {
     });
     this.appConfig = appConfig;
     this.configManager = new ConfigManager(appConfig);
+
+    // 注入优先级串行控制器（开启 task.prioritySerial 后，ffmpeg 压制按房间 processPriority 顺序串行）
+    taskQueue.setPriorityController({
+      enabled: () => this.appConfig.getAll()?.task?.prioritySerial === true,
+      roomPriority: (roomId: string) =>
+        this.configManager.getConfig(String(roomId)).processPriority,
+      recordingRooms: () =>
+        this.liveManager.liveData
+          .filter((live) => live.hasRecordingParts())
+          .map((live) => String(live.roomId)),
+    });
 
     // 监听事件缓冲管理器的匹配事件
     this.eventBufferManager.on("process", (pair: MatchedEventPair) => {
@@ -359,6 +371,7 @@ export class WebhookHandler {
         },
         {
           removeVideo: config.removeSourceAferrConvert2Mp4 ?? true,
+          extra: { roomId: config.roomId },
         },
       );
 
@@ -437,6 +450,7 @@ export class WebhookHandler {
           removeVideo: false,
           removeDanmu: false,
           limitTime: config.videoHandleTime,
+          extra: { roomId: config.roomId },
         },
       );
 
@@ -474,6 +488,7 @@ export class WebhookHandler {
           removeVideo: false,
           suffix: "-后处理",
           limitTime: config.videoHandleTime,
+          extra: { roomId: config.roomId },
         });
         context.part.filePath = output;
         conversionSuccessful = true;
@@ -793,6 +808,8 @@ export class WebhookHandler {
       removeVideo: boolean;
       suffix?: string;
       limitTime?: [string, string];
+      /** 附加元数据（如 { roomId }），用于优先级串行 */
+      extra?: Record<string, any>;
     },
   ): Promise<string> {
     const { dir, name } = path.parse(videoFile);
@@ -819,6 +836,7 @@ export class WebhookHandler {
       override: false,
       removeOrigin: options.removeVideo,
       autoRun: true,
+      extra: options.extra,
     });
 
     return new Promise((resolve, reject) => {
@@ -866,6 +884,8 @@ export class WebhookHandler {
       removeVideo?: boolean;
       removeDanmu?: boolean;
       limitTime?: [string, string];
+      /** 附加元数据（如 { roomId }），用于优先级串行 */
+      extra?: Record<string, any>;
     },
   ): Promise<string> => {
     const videoInput = files.videoFilePath;
@@ -882,6 +902,7 @@ export class WebhookHandler {
       ...options,
       removeOrigin: false,
       override: false,
+      extra: options.extra,
     });
 
     return new Promise((resolve, reject) => {
