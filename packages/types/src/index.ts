@@ -580,6 +580,8 @@ export interface Recorder {
   customHost?: string;
   // 不跟随全局配置字段
   noGlobalFollowFields: typeof recorderNoGlobalFollowFields;
+  /** 压制优先级（数字越小越优先），用于优先级串行压制；不配置或留空时默认 999 */
+  processPriority?: number;
 }
 
 export type SyncType = "baiduPCS" | "aliyunpan" | "alist" | "pan123" | "copy";

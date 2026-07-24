@@ -289,6 +289,7 @@ router.post("/add", async (ctx) => {
     "handleTime",
     "debugLevel",
     "api",
+    "processPriority",
   );
 
   const data = await recorderService.addRecorder(args);
@@ -345,6 +346,7 @@ router.put("/:id", (ctx) => {
     "debugLevel",
     "convert2Mp4",
     "api",
+    "processPriority",
   );
 
   ctx.body = { payload: recorderService.updateRecorder({ id, ...patch }) };

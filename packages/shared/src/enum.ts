@@ -875,4 +875,5 @@ export const defaultRecordConfig: Omit<Recorder, "id"> = {
   handleTime: [null, null],
   debugLevel: "none",
   api: "web",
+  processPriority: 999,
 };

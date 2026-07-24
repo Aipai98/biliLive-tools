@@ -84,6 +84,8 @@ export class WebhookHandler {
   danmuPreset: DanmuPreset;
   appConfig: AppConfig;
   configManager: ConfigManager;
+  /** 用于从 recorder 自身配置读取 processPriority */
+  private recorderManager?: ReturnType<typeof import("@biliLive-tools/liveManager").RecorderManager>["prototype"];
   private processedFiles: Set<string> = new Set();
   private fileRefManager: FileRefManager = new FileRefManager();
   eventBufferManager: EventBufferManager = new EventBufferManager();
@@ -102,7 +104,8 @@ export class WebhookHandler {
     this.liveManager.liveData = lives;
   }
 
-  constructor(appConfig: AppConfig) {
+  constructor(appConfig: AppConfig, recorderManager?: any) {
+    this.recorderManager = recorderManager;
     this.ffmpegPreset = new FFmpegPreset({
       globalConfig: { ffmpegPresetPath: config.ffmpegPresetPath },
     });
@@ -118,8 +121,26 @@ export class WebhookHandler {
     // 注入优先级串行控制器（开启 task.prioritySerial 后，ffmpeg 压制按房间 processPriority 顺序串行）
     taskQueue.setPriorityController({
       enabled: () => this.appConfig.getAll()?.task?.prioritySerial === true,
-      roomPriority: (roomId: string) =>
-        this.configManager.getConfig(String(roomId)).processPriority,
+      roomPriority: (roomId: string) => {
+        // 优先从 recorder 自身配置读取 processPriority（用户在「直播间设置」里填的值）
+        if (this.recorderManager) {
+          try {
+            const recorders = (this.recorderManager as any).recorders ?? (this.recorderManager as any).getAll?.();
+            if (recorders) {
+              const match = Array.isArray(recorders)
+                ? recorders.find((r: any) => String(r.channelId) === String(roomId) || String(r.id) === String(roomId))
+                : null;
+              if (match && typeof match.processPriority === "number") {
+                return match.processPriority;
+              }
+            }
+          } catch {
+            // recorder 查询失败时静默降级到 webhook 配置
+          }
+        }
+        // fallback：从 webhook 房间配置读取
+        return this.configManager.getConfig(String(roomId)).processPriority;
+      },
       recordingRooms: () =>
         this.liveManager.liveData
           .filter((live) => live.hasRecordingParts())

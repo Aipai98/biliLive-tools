@@ -130,6 +130,7 @@ export type UpdateRecorderArgs = Pick<
   | "weight"
   | "debugLevel"
   | "api"
+  | "processPriority"
 >;
 export type UpdateRecorderResp = ClientRecorder;
 

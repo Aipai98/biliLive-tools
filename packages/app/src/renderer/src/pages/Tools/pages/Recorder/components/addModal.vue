@@ -72,6 +72,22 @@
             <n-switch v-model:value="config.sendToWebhook" />
           </n-form-item>
 
+          <n-form-item>
+            <template #label>
+              <Tip
+                text="压制优先级"
+                tip="数字越小越优先压制；留空或 999 为最低优先级（最后处理）。开启「优先级串行」后生效。"
+              ></Tip>
+            </template>
+            <n-input-number
+              v-model:value="config.processPriority"
+              :min="0"
+              :max="999"
+              placeholder="999"
+              style="width: 100%"
+            />
+          </n-form-item>
+
           <h2>文件</h2>
           <template v-if="true">
             <n-form-item>

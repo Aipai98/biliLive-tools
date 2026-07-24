@@ -100,7 +100,8 @@ export async function serverStart(
 
   config = container.resolve("globalConfig");
   appConfig = container.resolve("appConfig");
-  handler = new WebhookHandler(appConfig);
+  const recorderManager = container.resolve("recorderManager");
+  handler = new WebhookHandler(appConfig, recorderManager);
 
   if (options.auth) {
     const passKey = process.env.BILILIVE_TOOLS_PASSKEY || options.passKey;
