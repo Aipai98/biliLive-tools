@@ -85,7 +85,7 @@ export class WebhookHandler {
   appConfig: AppConfig;
   configManager: ConfigManager;
   /** 用于从 recorder 自身配置读取 processPriority */
-  private recorderManager?: ReturnType<typeof import("@biliLive-tools/liveManager").RecorderManager>["prototype"];
+  private recorderManager?: any;
   private processedFiles: Set<string> = new Set();
   private fileRefManager: FileRefManager = new FileRefManager();
   eventBufferManager: EventBufferManager = new EventBufferManager();
