@@ -54,6 +54,7 @@ export const recorderNoGlobalFollowFields: Array<
     | "onlyAudio"
     | "handleTime"
     | "weight"
+    | "processPriority"
   >
 > = [
   "quality",
